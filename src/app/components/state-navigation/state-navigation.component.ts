@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { VisualizationConfig } from '../../../shared/data-format';
-import { Theme, DefaultColor, BoxTheme } from '../../../shared/themes/color-map';
+import { BoxTheme, DefaultColor, Theme } from '../../../shared/themes/color-map';
 import { Memento } from '../../model/state-manager';
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 
@@ -19,7 +19,8 @@ const MetaMemento = new Memento(dummyConfig);
 @Component({
   selector: 'ngrev-state-navigation',
   templateUrl: './state-navigation.component.html',
-  styleUrls: ['./state-navigation.component.scss']
+  styleUrls: ['./state-navigation.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StateNavigationComponent {
   @Input() states: Memento[] = [];
@@ -37,16 +38,12 @@ export class StateNavigationComponent {
 
   visibleTooltip = -1;
 
-  constructor(private _changeDetectorRef: ChangeDetectorRef) {}
-
   showTooltip(idx: number) {
     this.visibleTooltip = idx;
-    this._changeDetectorRef.detectChanges();
   }
 
   hideTooltip(idx: number) {
     this.visibleTooltip = -1;
-    this._changeDetectorRef.detectChanges();
   }
 
   changeState(state: Memento) {

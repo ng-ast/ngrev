@@ -26,7 +26,7 @@ export const applicationMenuTemplate = (
     submenu: [
       {
         label: "Themes",
-        submenu: Object.keys(getConfig().themes || []).map((label) => {
+        submenu: Object.keys(getConfig().themes || []).map((label: string) => {
           return {
             label,
             type: "radio",

@@ -28,11 +28,9 @@ export class StateManager {
   loadProject(tsconfig: string, showLibs: boolean, showModules: boolean) {
     return this.project
       .load(tsconfig, showLibs, showModules)
-      // TODO: StateProxy is gonna be created everytime the same as IPCBus. Maybe it would be great to use only one,
-      //  provided by angular service, just reset the state after loading new project.
       .then(() => (this.state = new StateProxy()))
       .then((proxy: StateProxy) => proxy.getData())
-      .then(data => this.history.push(new Memento(data)));
+      .then((data: VisualizationConfig<any>) => (this.history = [...this.history, new Memento(data)]));
   }
 
   toggleLibs() {
@@ -91,7 +89,8 @@ export class StateManager {
       if (last.dirty) {
         last.dirty = false;
         this.state!.reload().then(state => {
-          this.history[this.history.length - 1] = new Memento(state);
+          this.history.pop();
+          this.history = [...this.history, new Memento(state)];
           refreshOnReady && refreshOnReady();
           return state;
         });
@@ -112,7 +111,7 @@ export class StateManager {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     return new Promise(async (resolve, reject) => {
       try {
-        while (true && this.history.length) {
+        while (this.history.length) {
           const last = this.history[this.history.length - 1];
           if (last === memento) {
             break;
@@ -128,10 +127,13 @@ export class StateManager {
   }
 
   private pushState(data: VisualizationConfig<any>) {
-    this.history.push(new Memento(data));
+    this.history = [...this.history, new Memento(data)];
   }
 
   private popState() {
-    return this.state!.prevState().then(() => this.history.pop());
+    return this.state!.prevState().then(() => {
+      this.history.pop();
+      this.history = [...this.history];
+    });
   }
 }
